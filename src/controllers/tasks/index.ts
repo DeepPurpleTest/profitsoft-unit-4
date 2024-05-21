@@ -1,16 +1,19 @@
 import log4js from 'log4js';
 import httpStatus from 'http-status';
 import {Request, Response} from 'express';
-import {listTasksByProjectId as listTasksApi, saveTask as createTaskApi} from 'src/services/task';
+import {
+  counts as countsTaskApi,
+  listTasksByProjectId as listTasksApi,
+  saveTask as createTaskApi,
+  validateTask,
+} from 'src/services/task';
 import {InternalError} from 'src/system/internalError';
-import {TaskSaveDto} from "../../dto/task/taskSaveDto";
-import {TaskQueryDto} from "../../dto/task/taskQueryDto";
+import {TaskSaveDto} from "src/dto/task/taskSaveDto";
+import {TaskQueryDto} from "src/dto/task/taskQueryDto";
 
 export const listTasksByProjectId = async (req: Request, res: Response) => {
-  // const { projectId } = _.params; // for /id
-  const { projectId, size, from } = req.query;
+  const {projectId, size, from} = req.query;
 
-  // const response = await axios.get('http://localhost:8080/api/projects/1');
   const query: TaskQueryDto = {
     projectId: parseInt(projectId as string, 10) || 0,
     skip: parseInt(from as string, 10) || 0,
@@ -21,24 +24,50 @@ export const listTasksByProjectId = async (req: Request, res: Response) => {
     const result = await listTasksApi(query);
     res.send(result);
   } catch (err) {
-    const { message, status } = new InternalError(err);
+    const {message, status} = new InternalError(err);
     log4js.getLogger().error('Error in retrieving tasks.', err);
-    res.status(status).send({ message });
+    res.status(status).send({message});
   }
 };
 
 export const saveTask = async (req: Request, res: Response) => {
   try {
-    const task = new TaskSaveDto(req.body);
+    const taskDto = new TaskSaveDto(req.body);
+    const isValid = await validateTask(taskDto);
+
+    if(!isValid) {
+      res.status(httpStatus.BAD_REQUEST).send('Incorrect task data');
+      return;
+    }
+
     const id = await createTaskApi({
-      ...task,
+      ...taskDto,
     });
+
     res.status(httpStatus.CREATED).send({
       id,
     });
   } catch (err) {
-    const { message, status } = new InternalError(err);
-    log4js.getLogger().error('Error in creating student.', err);
-    res.status(status).send({ message });
+    if (err instanceof Error && err.message.startsWith('Validation error')) {
+      log4js.getLogger().error('Error in creating task.', err.message);
+      res.status(httpStatus.BAD_REQUEST).send({message: err.message});
+    } else {
+      const {message, status} = new InternalError(err);
+      log4js.getLogger().error('Error in creating task.', err);
+      res.status(status).send({message});
+    }
+  }
+};
+
+export const countsTasks = async (req: Request, res: Response) => {
+  const projectsDto = req.body;
+
+  try {
+    const result = await countsTaskApi(projectsDto);
+    res.send(result);
+  } catch (err) {
+    const {message, status} = new InternalError(err);
+    log4js.getLogger().error('Error in retrieving tasks.', err);
+    res.status(status).send({message});
   }
 };

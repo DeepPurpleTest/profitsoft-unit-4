@@ -1,15 +1,19 @@
+import {Expose, plainToClass} from "class-transformer";
+
 export class TaskSaveDto {
-  name?: string;
-  description?: string;
-  projectId?: string;
-  assigneeId?: string;
-  reporterId?: string;
+  name!: string;
+  description!: string;
+
+  @Expose({name: 'project_id'})
+    projectId!: number;
+
+  @Expose({name: 'assignee_id'})
+    assigneeId?: number;
+
+  @Expose({name: 'reporter_id'})
+    reporterId!: number;
 
   constructor(data: Partial<TaskSaveDto>) {
-    this.name = data.name;
-    this.description = data.description;
-    this.projectId = data.projectId;
-    this.assigneeId = data.assigneeId;
-    this.reporterId = data.reporterId;
+    Object.assign(this, plainToClass(TaskSaveDto, data));
   }
 }

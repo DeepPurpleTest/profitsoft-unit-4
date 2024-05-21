@@ -3,11 +3,12 @@ import mongoose, {Document, Schema} from 'mongoose';
 export interface ITask extends Document {
   name: string;
   description: string;
-  projectId: string;
-  assigneeId: string;
-  reporterId: string;
+  projectId: number;
+  assigneeId: number;
+  reporterId: number;
 
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const taskSchema = new Schema({
@@ -22,17 +23,17 @@ const taskSchema = new Schema({
   },
 
   projectId: {
-    type: String,
+    type: Number,
     required: true,
   },
 
   assigneeId: {
-    type: String,
+    type: Number,
     required: false,
   },
 
   reporterId: {
-    type: String,
+    type: Number,
     required: true,
   },
 }, {
