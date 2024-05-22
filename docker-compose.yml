@@ -5,13 +5,14 @@ services:
     ports:
       - '8888:8888'
     depends_on:
-      - db
+      - mongodb
       - consul
     networks:
       - app-network
     environment:
       - NODE_ENV=prod
-  db:
+
+  mongodb:
     image: mongo:5.0.14
     ports:
       - '27018:27017'
@@ -19,6 +20,40 @@ services:
       - ./docker/data/mongo/db:/data/db
     networks:
       - app-network
+
+  backend:
+    image: deepppurple/profitsoft-unit-2
+    container_name: unit-2-backend
+    environment:
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+      - "spring.profiles.active=prod"
+    ports:
+      - '8080:8080'
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  postgresdb:
+    image: postgres:latest
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: profitsoft-unit-2
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      interval: 8s
+      timeout: 4s
+      retries: 2
+    networks:
+      - app-network
+
   consul:
     image: consul:1.15.2
     ports:
@@ -38,6 +73,10 @@ services:
         sleep 5
         consul kv import -http-addr=http://0.0.0.0:8500 @/resources/consul/consul-config-kv.json
         wait $consul_pid
+
+volumes:
+  pg_data:
+    driver: local
 
 networks:
   app-network:

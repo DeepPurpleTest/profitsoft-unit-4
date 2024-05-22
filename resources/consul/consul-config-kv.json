@@ -42,11 +42,46 @@
 	{
 		"key": "config/nodejs-sample/prod/mongo.address",
 		"flags": 0,
-		"value": "bW9uZ29kYjovL2RiOjI3MDE3"
+		"value": "bW9uZ29kYjovL21vbmdvZGI6MjcwMTc="
 	},
 	{
 		"key": "config/nodejs-sample/prod/port",
 		"flags": 0,
 		"value": "ODg4OA=="
+	},
+	{
+		"key": "config/profitsoft-unit-2/",
+		"flags": 0,
+		"value": ""
+	},
+	{
+		"key": "config/profitsoft-unit-2/prod/",
+		"flags": 0,
+		"value": ""
+	},
+	{
+		"key": "config/profitsoft-unit-2/prod/server.port",
+		"flags": 0,
+		"value": "ODA4MA=="
+	},
+	{
+		"key": "config/profitsoft-unit-2/prod/postgres/",
+		"flags": 0,
+		"value": ""
+	},
+	{
+		"key": "config/profitsoft-unit-2/prod/postgres/url",
+		"flags": 0,
+		"value": "amRiYzpwb3N0Z3Jlc3FsOi8vcG9zdGdyZXNkYjo1NDMyL3Byb2ZpdHNvZnQtdW5pdC0y"
+	},
+	{
+		"key": "config/profitsoft-unit-2/prod/postgres/username",
+		"flags": 0,
+		"value": "cG9zdGdyZXM="
+	},
+	{
+		"key": "config/profitsoft-unit-2/prod/postgres/password",
+		"flags": 0,
+		"value": "cG9zdGdyZXM="
 	}
 ]

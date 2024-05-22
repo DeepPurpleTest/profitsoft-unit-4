@@ -65,7 +65,7 @@ export const counts = async (projectsDto: ProjectsDto) => {
 
 export const validateTask = async (taskSaveDto: TaskSaveDto) => {
   try {
-    const response = await axios.get(`http://localhost:8080/api/projects/${taskSaveDto.projectId}/members`);
+    const response = await axios.get(`http://backend:8080/api/projects/${taskSaveDto.projectId}/members`);
 
     const membersIdsDto: MembersIdsDto = plainToInstance(MembersIdsDto, response.data as object);
     const membersIdsSet: Set<number> = new Set(membersIdsDto.members);
