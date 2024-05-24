@@ -5,8 +5,8 @@ import {TaskQueryDto} from "src/dto/task/taskQueryDto";
 import axios from "axios";
 import {Error} from "mongoose";
 import {ProjectsDto} from "src/dto/project/projectsDto";
-import {instanceToPlain, plainToInstance} from 'class-transformer';
-import {MembersIdsDto} from "src/dto/task/membersIdsDto";
+import {instanceToPlain} from 'class-transformer';
+import {MembersIdsDto} from "src/dto/member/membersIdsDto";
 
 export const saveTask = async (
   taskSaveDto: TaskSaveDto
@@ -67,8 +67,8 @@ export const validateTask = async (taskSaveDto: TaskSaveDto) => {
   try {
     const response = await axios.get(`http://backend:8080/api/projects/${taskSaveDto.projectId}/members`);
 
-    const membersIdsDto: MembersIdsDto = plainToInstance(MembersIdsDto, response.data as object);
-    const membersIdsSet: Set<number> = new Set(membersIdsDto.members);
+    const membersIdsDto: MembersIdsDto = new MembersIdsDto(response.data as object);
+    const membersIdsSet: Set<number> = new Set(membersIdsDto.membersIds);
 
     const assigneeIdExists: boolean = taskSaveDto.assigneeId !== undefined ? membersIdsSet.has(taskSaveDto.assigneeId) : true;
     const reporterIdExists: boolean = membersIdsSet.has(taskSaveDto.reporterId);

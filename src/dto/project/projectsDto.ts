@@ -1,7 +1,10 @@
-export class ProjectsDto {
-  projectsIds: number[];
+import {Expose, plainToClass} from "class-transformer";
 
-  constructor(projectsIds: number[]) {
-    this.projectsIds = projectsIds;
+export class ProjectsDto {
+  @Expose({name: 'projects_ids'})
+    projectsIds!: number[];
+
+  constructor(data: Partial<ProjectsDto>) {
+    Object.assign(this, plainToClass(ProjectsDto, data));
   }
 }

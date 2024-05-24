@@ -10,6 +10,7 @@ import {
 import {InternalError} from 'src/system/internalError';
 import {TaskSaveDto} from "src/dto/task/taskSaveDto";
 import {TaskQueryDto} from "src/dto/task/taskQueryDto";
+import {ProjectsDto} from "../../dto/project/projectsDto";
 
 export const listTasksByProjectId = async (req: Request, res: Response) => {
   const {projectId, size, from} = req.query;
@@ -36,7 +37,7 @@ export const saveTask = async (req: Request, res: Response) => {
     const isValid = await validateTask(taskDto);
 
     if(!isValid) {
-      res.status(httpStatus.BAD_REQUEST).send('Incorrect task data');
+      res.status(httpStatus.BAD_REQUEST).send({ message: 'Incorrect task data'});
       return;
     }
 
@@ -60,7 +61,7 @@ export const saveTask = async (req: Request, res: Response) => {
 };
 
 export const countsTasks = async (req: Request, res: Response) => {
-  const projectsDto = req.body;
+  const projectsDto = new ProjectsDto(req.body);
 
   try {
     const result = await countsTaskApi(projectsDto);

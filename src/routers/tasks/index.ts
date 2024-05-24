@@ -1,5 +1,5 @@
 import express from 'express';
-import {countsTasks, listTasksByProjectId, saveTask} from "../../controllers/tasks";
+import {countsTasks, listTasksByProjectId, saveTask} from "src/controllers/tasks";
 
 const router = express.Router();
 
