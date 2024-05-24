@@ -7,6 +7,7 @@ import routers from 'src/routers/tasks';
 import Task from 'src/model/task';
 import * as taskValidator from 'src/services/task';
 import {ObjectId} from "mongodb";
+import mongoSetup from "../mongoSetup";
 
 const { expect } = chai;
 
@@ -21,7 +22,8 @@ app.use('/', routers);
 describe('Task controller', () => {
   let validateTaskStub: SinonStub;
 
-  before(() => {
+  before(async () => {
+    await mongoSetup;
     validateTaskStub = sinon.stub(taskValidator, 'validateTask').resolves(true);
   });
 

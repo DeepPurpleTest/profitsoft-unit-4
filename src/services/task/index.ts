@@ -23,6 +23,7 @@ export const listTasksByProjectId = async (
   const tasks = await Task.find({
     projectId,
   })
+    .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
 
