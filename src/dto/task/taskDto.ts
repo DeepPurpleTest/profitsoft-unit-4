@@ -25,26 +25,6 @@ export class TaskDto {
   @Expose({name: 'updated_at'})
     updatedAt!: Date;
 
-  // constructor(
-  //   id: string,
-  //   name: string,
-  //   description: string,
-  //   projectId: number,
-  //   assigneeId: number,
-  //   reporterId: number,
-  //   createdAt: Date,
-  //   updatedAt: Date,
-  // ) {
-  //   this._id = id;
-  //   this.name = name;
-  //   this.description = description;
-  //   this.projectId = projectId;
-  //   this.assigneeId = assigneeId;
-  //   this.reporterId = reporterId;
-  //   this.createdAt = createdAt;
-  //   this.updatedAt = updatedAt;
-  // }
-
   constructor(partial: Partial<TaskDto> = {}) {
     Object.assign(this, partial);
   }
