@@ -5,13 +5,9 @@ This is an example node js project using typescript, consul, express, mongoose, 
 
 Just execute `docker-compose up`
 
-It will run all services in containers (nodejs-sample, db and consul).
+It will run all services in containers (nodejs-sample, mongodb, consul, postgresdb and spring boot app).
 Once consul is running, all key-values will be added automatically.
 Once consul and db are running, nodejs-sample will be started.
-
-After that you can check the service by calling
-GET: `http://localhost:8888/ping`
-response will be `PONG`
 
 All consul kv's and mongoDB data will be stored in docker/data/...
 Thus, when the containers are restarted, data will not be lost.
@@ -30,6 +26,14 @@ for "prod" version
 `config/nodejs-sample/prod/port` : `8888`
 
 `config/nodejs-sample/prod/mongo.address` : `mongodb://db:27017`
+
+`config/profitsoft-unit-2/prod/server.port` : `8080`
+
+`config/profitsoft-unit-2/prod/postgres/url` : `jdbc:postgresql://postgresdb:5432/profitsoft-unit-2`
+
+`config/profitsoft-unit-2/prod/postgres/username` : `postgres`
+
+`config/profitsoft-unit-2/prod/postgres/password` : `postgres`
 
 
 for "dev" version
