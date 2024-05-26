@@ -7,7 +7,7 @@ const API_BASE_URL = process.env.API_BASE_URL;
 
 export const getMembers = async (projectId: number) => {
   try {
-    return await axios.get(`${API_BASE_URL}api/projects/${projectId}/members`);
+    return await axios.get(`${API_BASE_URL}/api/projects/${projectId}/members`);
   } catch (error: any) {
     throw new ClientError(error);
   }
