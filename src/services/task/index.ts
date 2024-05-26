@@ -1,12 +1,12 @@
-import Task, {ITask} from "src/model/task";
+import Task from "src/model/task";
 import {TaskDto} from "src/dto/task/taskDto";
 import {TaskSaveDto} from "src/dto/task/taskSaveDto";
 import {TaskQueryDto} from "src/dto/task/taskQueryDto";
-import axios from "axios";
 import {Error} from "mongoose";
 import {ProjectsDto} from "src/dto/project/projectsDto";
 import {instanceToPlain} from 'class-transformer';
 import {MembersIdsDto} from "src/dto/member/membersIdsDto";
+import {getMembers} from "../../client/projectClient";
 
 export const saveTask = async (
   taskSaveDto: TaskSaveDto
@@ -25,26 +25,17 @@ export const listTasksByProjectId = async (
   })
     .sort({ createdAt: -1 })
     .skip(skip)
-    .limit(limit);
+    .limit(limit)
+    .select('-__v')
+    .lean();
 
-  const taskDtos = tasks.map(task => toTaskDto(task));
-  return taskDtos.map(task => instanceToPlain(new TaskDto(task)));
-};
-
-const toTaskDto = (task: ITask): TaskDto => {
-  return ({
-    _id: task._id.toString(),
-    name: task.name,
-    description: task.description,
-    projectId: task.projectId,
-    reporterId: task.reporterId,
-    assigneeId: task.assigneeId,
-    createdAt: task.createdAt,
-    updatedAt: task.updatedAt,
+  return tasks.map(task => {
+    const transformedTask = { ...task, _id: task._id.toString() };
+    return instanceToPlain(new TaskDto(transformedTask));
   });
 };
 
-export const counts = async (projectsDto: ProjectsDto) => {
+export const counts = async (projectsDto: ProjectsDto): Promise<Record<string, number>> => {
   const results = await Task.aggregate([
     { $match: { projectId: { $in: projectsDto.projectsIds } } },
     { $group: { _id: '$projectId', count: { $sum: 1 } } },
@@ -64,9 +55,9 @@ export const counts = async (projectsDto: ProjectsDto) => {
   return resultMap;
 };
 
-export const validateTask = async (taskSaveDto: TaskSaveDto) => {
+export const validateTask = async (taskSaveDto: TaskSaveDto): Promise<boolean> => {
   try {
-    const response = await axios.get(`http://backend:8080/api/projects/${taskSaveDto.projectId}/members`);
+    const response = await getMembers(taskSaveDto.projectId);
 
     const membersIdsDto: MembersIdsDto = new MembersIdsDto(response.data as object);
     const membersIdsSet: Set<number> = new Set(membersIdsDto.membersIds);

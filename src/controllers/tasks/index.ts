@@ -12,7 +12,7 @@ import {TaskSaveDto} from "src/dto/task/taskSaveDto";
 import {TaskQueryDto} from "src/dto/task/taskQueryDto";
 import {ProjectsDto} from "../../dto/project/projectsDto";
 
-export const listTasksByProjectId = async (req: Request, res: Response) => {
+export const listTasksByProjectId = async (req: Request, res: Response): Promise<void> => {
   const {projectId, size, from} = req.query;
 
   const query: TaskQueryDto = {
@@ -31,7 +31,7 @@ export const listTasksByProjectId = async (req: Request, res: Response) => {
   }
 };
 
-export const saveTask = async (req: Request, res: Response) => {
+export const saveTask = async (req: Request, res: Response): Promise<void> => {
   try {
     const taskDto = new TaskSaveDto(req.body);
     const isValid = await validateTask(taskDto);
@@ -60,7 +60,7 @@ export const saveTask = async (req: Request, res: Response) => {
   }
 };
 
-export const countsTasks = async (req: Request, res: Response) => {
+export const countsTasks = async (req: Request, res: Response): Promise<void> => {
   const projectsDto = new ProjectsDto(req.body);
 
   try {

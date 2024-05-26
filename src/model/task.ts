@@ -13,23 +13,23 @@ export interface ITask extends Document {
 
 const taskSchema = new Schema({
   name: {
-    required: true,
     type: String,
+    required: true,
   },
 
   description: {
-    required: true,
     type: String,
+    required: true,
   },
 
   projectId: {
-    type: Number,
     required: true,
+    type: Number,
   },
 
   assigneeId: {
     type: Number,
-    required: false,
+    default: null,
   },
 
   reporterId: {
@@ -38,7 +38,6 @@ const taskSchema = new Schema({
   },
 }, {
   timestamps: true,
-  timezone: 'UTC',
 },);
 
 const Task = mongoose.model<ITask>('Task', taskSchema);

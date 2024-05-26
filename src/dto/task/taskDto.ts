@@ -28,5 +28,4 @@ export class TaskDto {
   constructor(partial: Partial<TaskDto> = {}) {
     Object.assign(this, partial);
   }
-
 }
