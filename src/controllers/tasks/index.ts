@@ -1,4 +1,3 @@
-import log4js from 'log4js';
 import httpStatus from 'http-status';
 import {Request, Response} from 'express';
 import {
@@ -7,10 +6,11 @@ import {
   saveTask as createTaskApi,
   validateTask,
 } from 'src/services/task';
-import {InternalError} from 'src/system/internalError';
 import {TaskSaveDto} from "src/dto/task/taskSaveDto";
 import {TaskQueryDto} from "src/dto/task/taskQueryDto";
 import {ProjectsDto} from "../../dto/project/projectsDto";
+import {errorHandler} from "../../handler/handler";
+
 
 export const listTasksByProjectId = async (req: Request, res: Response): Promise<void> => {
   const {projectId, size, from} = req.query;
@@ -25,9 +25,7 @@ export const listTasksByProjectId = async (req: Request, res: Response): Promise
     const result = await listTasksApi(query);
     res.send(result);
   } catch (err) {
-    const {message, status} = new InternalError(err);
-    log4js.getLogger().error('Error in retrieving tasks.', err);
-    res.status(status).send({message});
+    errorHandler(err, req, res);
   }
 };
 
@@ -49,14 +47,7 @@ export const saveTask = async (req: Request, res: Response): Promise<void> => {
       id,
     });
   } catch (err) {
-    if (err instanceof Error && err.message.startsWith('Validation error')) {
-      log4js.getLogger().error('Error in creating task.', err.message);
-      res.status(httpStatus.BAD_REQUEST).send({message: err.message});
-    } else {
-      const {message, status} = new InternalError(err);
-      log4js.getLogger().error('Error in creating task.', err);
-      res.status(status).send({message});
-    }
+    errorHandler(err, req, res);
   }
 };
 
@@ -67,8 +58,6 @@ export const countsTasks = async (req: Request, res: Response): Promise<void> =>
     const result = await countsTaskApi(projectsDto);
     res.send(result);
   } catch (err) {
-    const {message, status} = new InternalError(err);
-    log4js.getLogger().error('Error in retrieving tasks.', err);
-    res.status(status).send({message});
+    errorHandler(err, req, res);
   }
 };

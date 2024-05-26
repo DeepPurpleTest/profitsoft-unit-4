@@ -2,7 +2,6 @@ import Task from "src/model/task";
 import {TaskDto} from "src/dto/task/taskDto";
 import {TaskSaveDto} from "src/dto/task/taskSaveDto";
 import {TaskQueryDto} from "src/dto/task/taskQueryDto";
-import {Error} from "mongoose";
 import {ProjectsDto} from "src/dto/project/projectsDto";
 import {instanceToPlain} from 'class-transformer';
 import {MembersIdsDto} from "src/dto/member/membersIdsDto";
@@ -56,23 +55,15 @@ export const counts = async (projectsDto: ProjectsDto): Promise<Record<string, n
 };
 
 export const validateTask = async (taskSaveDto: TaskSaveDto): Promise<boolean> => {
-  try {
-    const response = await getMembers(taskSaveDto.projectId);
+  const response = await getMembers(taskSaveDto.projectId);
 
-    const membersIdsDto: MembersIdsDto = new MembersIdsDto(response.data as object);
-    const membersIdsSet: Set<number> = new Set(membersIdsDto.membersIds);
+  const membersIdsDto: MembersIdsDto = new MembersIdsDto(response.data as object);
+  const membersIdsSet: Set<number> = new Set(membersIdsDto.membersIds);
 
-    const assigneeIdExists: boolean = taskSaveDto.assigneeId !== undefined ? membersIdsSet.has(taskSaveDto.assigneeId) : true;
-    const reporterIdExists: boolean = membersIdsSet.has(taskSaveDto.reporterId);
+  const assigneeIdExists: boolean = taskSaveDto.assigneeId !== undefined ? membersIdsSet.has(taskSaveDto.assigneeId) : true;
+  const reporterIdExists: boolean = membersIdsSet.has(taskSaveDto.reporterId);
 
-    return assigneeIdExists && reporterIdExists;
-  } catch (error: any) {
-    if (error.response) {
-      throw new Error(`Validation error: ${error.response.data.message}`);
-    }
-
-    throw new Error('Validation error: ' + error.message);
-  }
+  return assigneeIdExists && reporterIdExists;
 };
 
 
