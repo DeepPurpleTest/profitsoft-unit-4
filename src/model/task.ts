@@ -4,7 +4,7 @@ export interface ITask extends Document {
   name: string;
   description: string;
   projectId: number;
-  assigneeId: number;
+  assigneeId: number | null;
   reporterId: number;
 
   createdAt: Date;

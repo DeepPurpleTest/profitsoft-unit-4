@@ -1,9 +1,9 @@
 import express from 'express';
 import routers from './routers';
 import config from './config';
-import log4js, { Configuration } from 'log4js';
-import mongoose, { ConnectOptions } from 'mongoose';
-import Consul, { ConsulOptions } from 'consul';
+import log4js, {Configuration} from 'log4js';
+import mongoose, {ConnectOptions} from 'mongoose';
+import Consul, {ConsulOptions} from 'consul';
 
 type EnvType = 'dev' | 'prod';
 

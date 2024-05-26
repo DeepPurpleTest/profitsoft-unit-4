@@ -14,7 +14,7 @@ export class TaskDto {
     projectId!: number;
 
   @Expose({name: 'assignee_id'})
-    assigneeId?: number;
+    assigneeId?: number | null;
 
   @Expose({name: 'reporter_id'})
     reporterId!: number;
