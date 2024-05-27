@@ -10,6 +10,9 @@ import {validate} from "class-validator";
 import {ValidationError} from "../../handler/errors/validationError";
 import {NotFoundError} from "../../handler/errors/notFoundError";
 
+export const SKIP_DEFAULT = 0;
+export const LIMIT_DEFAULT = 5;
+
 export const saveTask = async (
   taskSaveDto: TaskSaveDto
 ): Promise<string> => {
@@ -19,24 +22,17 @@ export const saveTask = async (
 };
 
 export const listTasksByProjectId = async (
-  query: TaskQueryDto,
+  taskQueryDto: TaskQueryDto,
 ): Promise<Record<string, any>[]> => {
-  const errors = await validate(query);
-  if (errors.length > 0) {
-    const validationErrors = errors.map(error => ({
-      field: error.property,
-      errors: Object.values(error.constraints ?? {}),
-    }));
-    throw new ValidationError(validationErrors);
-  }
+  await validateFields(taskQueryDto);
 
-  const { projectId, skip, limit } = query;
+  const { projectId, skip, limit } = taskQueryDto;
   const tasks = await Task.find({
     projectId,
   })
     .sort({ createdAt: -1 })
-    .skip(skip ? skip : 0)
-    .limit(limit? limit : 5)
+    .skip(skip ?? SKIP_DEFAULT)
+    .limit(limit ?? LIMIT_DEFAULT)
     .select('-__v')
     .lean();
 
@@ -67,14 +63,7 @@ export const counts = async (projectsDto: ProjectsDto): Promise<Record<string, n
 };
 
 export const validateTask = async (taskSaveDto: TaskSaveDto) => {
-  const errors = await validate(taskSaveDto);
-  if (errors.length > 0) {
-    const validationErrors = errors.map(error => ({
-      field: error.property,
-      errors: Object.values(error.constraints ?? {}),
-    }));
-    throw new ValidationError(validationErrors);
-  }
+  await validateFields(taskSaveDto);
 
   const response = await getMembers(taskSaveDto.projectId);
 
@@ -87,6 +76,17 @@ export const validateTask = async (taskSaveDto: TaskSaveDto) => {
 
   if (!membersIdsSet.has(taskSaveDto.reporterId)) {
     throw new NotFoundError(`Invalid reporterId: ${taskSaveDto.reporterId}`);
+  }
+};
+
+const validateFields = async (object: any) => {
+  const errors = await validate(object);
+  if (errors.length > 0) {
+    const validationErrors = errors.map(error => ({
+      field: error.property,
+      errors: Object.values(error.constraints ?? {}),
+    }));
+    throw new ValidationError(validationErrors);
   }
 };
 
