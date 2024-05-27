@@ -7,18 +7,21 @@ import {
   validateTask,
 } from 'src/services/task';
 import {TaskSaveDto} from "src/dto/task/taskSaveDto";
-import {TaskQueryDto} from "src/dto/task/taskQueryDto";
 import {ProjectsDto} from "../../dto/project/projectsDto";
+import {TaskQueryDto} from "../../dto/task/taskQueryDto";
 
 
 export const listTasksByProjectId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const {size, from} = req.query;
-    const taskQueryDto = new TaskQueryDto(
-      req.body,
-      size ? parseInt(size as string, 10) : 5,
-      from ? parseInt(from as string, 10) : 0,
-    );
+
+    const data = {
+      ...req.body,
+      skip: from,
+      limit: size,
+    };
+
+    const taskQueryDto = new TaskQueryDto(data);
 
     const result = await listTasksApi(taskQueryDto);
     res.send(result);

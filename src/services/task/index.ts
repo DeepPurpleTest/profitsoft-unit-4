@@ -35,8 +35,8 @@ export const listTasksByProjectId = async (
     projectId,
   })
     .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit)
+    .skip(skip ? skip : 0)
+    .limit(limit? limit : 5)
     .select('-__v')
     .lean();
 
