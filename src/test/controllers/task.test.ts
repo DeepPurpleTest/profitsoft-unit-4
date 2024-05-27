@@ -24,14 +24,10 @@ describe('Task controller', () => {
 
   before(async () => {
     await mongoSetup;
-    validateTaskStub = sinon.stub(taskValidator, 'validateTask').resolves(true);
+    validateTaskStub = sinon.stub(taskValidator, 'validateTask').resolves();
   });
 
-  afterEach(async () => {
-    await Task.deleteMany({});
-  });
-
-  it('should list the tasks', (done) => {
+  beforeEach(async () => {
     const tasks = [
       {
         _id: new ObjectId().toString(),
@@ -39,31 +35,49 @@ describe('Task controller', () => {
         description: "Task 1",
         projectId: 1,
         assigneeId: 1,
-        reporterId: 1,
+        reporterId: 2,
       },
       {
         _id: new ObjectId().toString(),
-        name: "Task 2",
-        description: "Task 2",
-        projectId: 1,
-        assigneeId: 1,
-        reporterId: 2,
+        name: "Task 1",
+        description: "Task 1",
+        projectId: 2,
+        assigneeId: 3,
+        reporterId: 4,
+      },
+      {
+        _id: new ObjectId().toString(),
+        name: "Task 1",
+        description: "Task 1",
+        projectId: 3,
+        assigneeId: 5,
+        reporterId: 6,
       },
     ];
 
-    Task.insertMany(tasks).then( () => {
-      chai.request(app)
-        .get('')
-        .query({ projectId: 1, size: 5, from: 0 })
-        .end((_, res) => {
-          res.should.have.status(200);
-          expect(res.body).to.be.an('array');
-          expect(res.body.length).to.equal(2);
+    await Task.insertMany(tasks);
+  });
 
-          done();
-        });
-    }
-    ).catch(done);
+  afterEach(async () => {
+    await Task.deleteMany({});
+  });
+
+  it('should list the tasks', (done) => {
+    const project =
+      {
+        project_id: 1,
+      };
+
+    chai.request(app)
+      .get('')
+      .send({ ...project })
+      .query({ size: 5, from: 0 })
+      .end((_, res) => {
+        res.should.have.status(200);
+        expect(res.body).to.be.an('array');
+        expect(res.body.length).to.equal(1);
+        done();
+      });
   },
   );
 
@@ -94,54 +108,25 @@ describe('Task controller', () => {
 
   it('should list of tasks count', (done) => {
 
-    const tasks = [
-      {
-        _id: new ObjectId().toString(),
-        name: "Task 1",
-        description: "Task 1",
-        projectId: 1,
-        assigneeId: 1,
-        reporterId: 2,
-      },
-      {
-        _id: new ObjectId().toString(),
-        name: "Task 1",
-        description: "Task 1",
-        projectId: 2,
-        assigneeId: 2,
-        reporterId: 3,
-      },
-      {
-        _id: new ObjectId().toString(),
-        name: "Task 1",
-        description: "Task 1",
-        projectId: 3,
-        assigneeId: 4,
-        reporterId: 5,
-      },
-    ];
 
     const projectsDto =
       {
         projects_ids: [1,2,3],
       };
 
-    Task.insertMany(tasks).then( () => {
-      chai.request(app)
-        .post('/_counts')
-        .send({...projectsDto})
-        .end((_, res) => {
-          res.should.have.status(200);
-          expect(res.body).to.deep.equal({
-            1: 1,
-            2: 1,
-            3: 1,
-          });
-
-          done();
+    chai.request(app)
+      .post('/_counts')
+      .send({...projectsDto})
+      .end((_, res) => {
+        res.should.have.status(200);
+        expect(res.body).to.deep.equal({
+          1: 1,
+          2: 1,
+          3: 1,
         });
-    }
-    ).catch(done);
+
+        done();
+      });
   },
   );
 });
