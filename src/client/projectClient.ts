@@ -9,6 +9,6 @@ export const getMembers = async (projectId: number) => {
   try {
     return await axios.get(`${API_BASE_URL}/api/projects/${projectId}/members`);
   } catch (error: any) {
-    throw new ClientError(error);
+    throw new ClientError(error.response.data.message);
   }
 };

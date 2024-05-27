@@ -12,16 +12,15 @@ import {ProjectsDto} from "../../dto/project/projectsDto";
 
 
 export const listTasksByProjectId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const {projectId, size, from} = req.query;
-
-  const query: TaskQueryDto = {
-    projectId: parseInt(projectId as string, 10) || 0,
-    skip: parseInt(from as string, 10) || 0,
-    limit: parseInt(size as string, 10) || 10,
-  };
-
   try {
-    const result = await listTasksApi(query);
+    const {size, from} = req.query;
+    const taskQueryDto = new TaskQueryDto(
+      req.body,
+      size ? parseInt(size as string, 10) : 5,
+      from ? parseInt(from as string, 10) : 0,
+    );
+
+    const result = await listTasksApi(taskQueryDto);
     res.send(result);
   } catch (err) {
     next(err);
@@ -31,12 +30,7 @@ export const listTasksByProjectId = async (req: Request, res: Response, next: Ne
 export const saveTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const taskDto = new TaskSaveDto(req.body);
-    const isValid = await validateTask(taskDto);
-
-    if(!isValid) {
-      res.status(httpStatus.BAD_REQUEST).send({ message: 'Incorrect task data'});
-      return;
-    }
+    await validateTask(taskDto);
 
     const id = await createTaskApi({
       ...taskDto,

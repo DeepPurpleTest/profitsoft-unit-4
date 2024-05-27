@@ -1,4 +1,10 @@
 export class QueryDto {
-  skip = 0;
-  limit = 10;
+
+  skip!: number;
+  limit!: number;
+
+  constructor(skip: number, limit: number) {
+    this.skip = skip;
+    this.limit = limit;
+  }
 }

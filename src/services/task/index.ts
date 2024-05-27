@@ -8,6 +8,7 @@ import {MembersIdsDto} from "src/dto/member/membersIdsDto";
 import {getMembers} from "../../client/projectClient";
 import {validate} from "class-validator";
 import {ValidationError} from "../../handler/errors/validationError";
+import {NotFoundError} from "../../handler/errors/notFoundError";
 
 export const saveTask = async (
   taskSaveDto: TaskSaveDto
@@ -20,6 +21,15 @@ export const saveTask = async (
 export const listTasksByProjectId = async (
   query: TaskQueryDto,
 ): Promise<Record<string, any>[]> => {
+  const errors = await validate(query);
+  if (errors.length > 0) {
+    const validationErrors = errors.map(error => ({
+      field: error.property,
+      errors: Object.values(error.constraints ?? {}),
+    }));
+    throw new ValidationError(validationErrors);
+  }
+
   const { projectId, skip, limit } = query;
   const tasks = await Task.find({
     projectId,
@@ -56,7 +66,7 @@ export const counts = async (projectsDto: ProjectsDto): Promise<Record<string, n
   return resultMap;
 };
 
-export const validateTask = async (taskSaveDto: TaskSaveDto): Promise<boolean> => {
+export const validateTask = async (taskSaveDto: TaskSaveDto) => {
   const errors = await validate(taskSaveDto);
   if (errors.length > 0) {
     const validationErrors = errors.map(error => ({
@@ -71,10 +81,13 @@ export const validateTask = async (taskSaveDto: TaskSaveDto): Promise<boolean> =
   const membersIdsDto: MembersIdsDto = new MembersIdsDto(response.data as object);
   const membersIdsSet: Set<number> = new Set(membersIdsDto.membersIds);
 
-  const assigneeIdExists: boolean = taskSaveDto.assigneeId !== undefined ? membersIdsSet.has(taskSaveDto.assigneeId) : true;
-  const reporterIdExists: boolean = membersIdsSet.has(taskSaveDto.reporterId);
+  if (taskSaveDto.assigneeId !== undefined && !membersIdsSet.has(taskSaveDto.assigneeId)) {
+    throw new NotFoundError(`Invalid assigneeId: ${taskSaveDto.assigneeId}`);
+  }
 
-  return assigneeIdExists && reporterIdExists;
+  if (!membersIdsSet.has(taskSaveDto.reporterId)) {
+    throw new NotFoundError(`Invalid reporterId: ${taskSaveDto.reporterId}`);
+  }
 };
 
 
