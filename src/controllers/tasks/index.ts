@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import {Request, Response} from 'express';
+import {NextFunction, Request, Response} from 'express';
 import {
   counts as countsTaskApi,
   listTasksByProjectId as listTasksApi,
@@ -9,10 +9,9 @@ import {
 import {TaskSaveDto} from "src/dto/task/taskSaveDto";
 import {TaskQueryDto} from "src/dto/task/taskQueryDto";
 import {ProjectsDto} from "../../dto/project/projectsDto";
-import {errorHandler} from "../../handler/handler";
 
 
-export const listTasksByProjectId = async (req: Request, res: Response): Promise<void> => {
+export const listTasksByProjectId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const {projectId, size, from} = req.query;
 
   const query: TaskQueryDto = {
@@ -25,11 +24,11 @@ export const listTasksByProjectId = async (req: Request, res: Response): Promise
     const result = await listTasksApi(query);
     res.send(result);
   } catch (err) {
-    errorHandler(err, req, res);
+    next(err);
   }
 };
 
-export const saveTask = async (req: Request, res: Response): Promise<void> => {
+export const saveTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const taskDto = new TaskSaveDto(req.body);
     const isValid = await validateTask(taskDto);
@@ -47,17 +46,17 @@ export const saveTask = async (req: Request, res: Response): Promise<void> => {
       id,
     });
   } catch (err) {
-    errorHandler(err, req, res);
+    next(err);
   }
 };
 
-export const countsTasks = async (req: Request, res: Response): Promise<void> => {
+export const countsTasks = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const projectsDto = new ProjectsDto(req.body);
 
   try {
     const result = await countsTaskApi(projectsDto);
     res.send(result);
   } catch (err) {
-    errorHandler(err, req, res);
+    next(err);
   }
 };

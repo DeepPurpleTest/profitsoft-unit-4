@@ -6,6 +6,8 @@ import {ProjectsDto} from "src/dto/project/projectsDto";
 import {instanceToPlain} from 'class-transformer';
 import {MembersIdsDto} from "src/dto/member/membersIdsDto";
 import {getMembers} from "../../client/projectClient";
+import {validate} from "class-validator";
+import {ValidationError} from "../../handler/errors/validationError";
 
 export const saveTask = async (
   taskSaveDto: TaskSaveDto
@@ -55,6 +57,15 @@ export const counts = async (projectsDto: ProjectsDto): Promise<Record<string, n
 };
 
 export const validateTask = async (taskSaveDto: TaskSaveDto): Promise<boolean> => {
+  const errors = await validate(taskSaveDto);
+  if (errors.length > 0) {
+    const validationErrors = errors.map(error => ({
+      field: error.property,
+      errors: Object.values(error.constraints ?? {}),
+    }));
+    throw new ValidationError(validationErrors);
+  }
+
   const response = await getMembers(taskSaveDto.projectId);
 
   const membersIdsDto: MembersIdsDto = new MembersIdsDto(response.data as object);

@@ -1,9 +1,10 @@
-import express from 'express';
+import express, {NextFunction, Request, Response} from 'express';
 import routers from './routers';
 import config from './config';
 import log4js, {Configuration} from 'log4js';
 import mongoose, {ConnectOptions} from 'mongoose';
 import Consul, {ConsulOptions} from 'consul';
+import {errorHandler} from "./handler/handler";
 
 type EnvType = 'dev' | 'prod';
 
@@ -35,7 +36,7 @@ export default async () => {
 
   app.use(express.json({ limit: '1mb' }));
 
-  app.use((req, _, next) => {
+  app.use((req: Request, _: Response, next: NextFunction) => {
     const dateReviver = (_: string, value: unknown) => {
       if (value && typeof value === 'string') {
         const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
@@ -51,6 +52,9 @@ export default async () => {
   });
 
   app.use('/', routers);
+
+  app.use((err: any, req: Request, res: Response, next: NextFunction) =>
+    errorHandler(err, req, res, next));
 
   const port = await getConsulValue(`${env}/port`) as number;
   const address = await getConsulValue(`${env}/address`) as string;
