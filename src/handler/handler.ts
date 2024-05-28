@@ -23,7 +23,7 @@ export const errorHandler = (err: any, _: Request, res: Response, next: NextFunc
     res.status(err.status).send({ message: err.message });
   } else {
     logger.error('Unhandled error');
-    res.status(INTERNAL_SERVER_ERROR).send({ message: 'Internal Server Error' });
+    res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
   }
 
   next();

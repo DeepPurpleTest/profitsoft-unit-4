@@ -11,6 +11,7 @@ services:
       - app-network
     environment:
       - NODE_ENV=prod
+      - API_BASE_URL=http://backend:8080
 
   mongodb:
     image: mongo:5.0.14
