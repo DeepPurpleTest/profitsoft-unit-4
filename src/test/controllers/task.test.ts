@@ -10,6 +10,7 @@ import {ObjectId} from "mongodb";
 import mongoSetup from "../mongoSetup";
 import {errorHandler} from "../../handler/handler";
 import {ValidationError} from "../../handler/errors/validationError";
+import {NotFoundError} from "../../handler/errors/notFoundError";
 
 const { expect } = chai;
 
@@ -145,6 +146,25 @@ describe('Task controller', () => {
 
         expect(res.body).to.have.property('message');
         expect(res.body).to.have.property('errors');
+
+        done();
+      });
+  },
+  );
+
+  it('should return not found error while project wasnt found', (done) => {
+    const error = new NotFoundError('not found');
+
+    validateTaskStub = sinon.stub(taskValidator, 'validateTask').rejects(error);
+
+    chai.request(app)
+      .post('')
+      .end((_, res) => {
+        expect(validateTaskStub.calledOnce).to.be.true;
+
+        res.should.have.status(404);
+
+        expect(res.body).to.have.property('message');
 
         done();
       });

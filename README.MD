@@ -1,5 +1,29 @@
 # nodejs-sample
 This is an example node js project using typescript, consul, express, mongoose, mocha.
+Endpoints with requests:
+1. Get("/tasks")
+   ```json
+   {
+      "project_id": 1
+   }   
+   ```
+2. Post("/tasks")
+   ```json
+   {
+      "name": "name",
+      "description": "description",
+      "project_id": 1,
+      "assignee_id": 1,
+      "reporter_id": 2
+   }
+   ```
+3. Post("/tasks/_counts")
+   ```json
+   {
+      "projects_ids": [1, 2, 3]
+   }
+   ```
+   
 
 # How to run "for the prod"
 
@@ -7,7 +31,8 @@ Just execute `docker-compose up`
 
 It will run all services in containers (nodejs-sample, mongodb, consul, postgresdb and spring boot app).
 Once consul is running, all key-values will be added automatically.
-Once consul and db are running, nodejs-sample will be started.
+Once consul and mongodb are running, nodejs-sample will be started.
+Once protgresdb are running, spring app will be started
 
 All consul kv's and mongoDB data will be stored in docker/data/...
 Thus, when the containers are restarted, data will not be lost.
@@ -49,16 +74,6 @@ run nodejs-sample again
 
 # Setup
 Run `npm install` in the terminal
-
-# How to run for the prod
-
-When consul and mongoDB containers are running
-```
-npm run start
-```
-
-If everything is fine, you will see:
-"Example app listening on port localhost:8888"
 
 # How to develop
 

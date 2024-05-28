@@ -73,11 +73,11 @@ export const validateTask = async (taskSaveDto: TaskSaveDto) => {
   const membersIdsSet: Set<number> = new Set(membersIdsDto.membersIds);
 
   if (taskSaveDto.assigneeId !== undefined && !membersIdsSet.has(taskSaveDto.assigneeId)) {
-    throw new NotFoundError(`Invalid assigneeId: ${taskSaveDto.assigneeId}`);
+    throw new NotFoundError(`assigneeId:${taskSaveDto.assigneeId} wasn't found on project with id:${taskSaveDto.projectId}`);
   }
 
   if (!membersIdsSet.has(taskSaveDto.reporterId)) {
-    throw new NotFoundError(`Invalid reporterId: ${taskSaveDto.reporterId}`);
+    throw new NotFoundError(`reporterId:${taskSaveDto.reporterId} wasn't found on project with id:${taskSaveDto.projectId}`);
   }
 };
 
