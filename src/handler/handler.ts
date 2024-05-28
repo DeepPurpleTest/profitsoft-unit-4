@@ -7,8 +7,6 @@ import {BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND} from "http-status";
 import {ClientError} from "./errors/clientError";
 
 export const errorHandler = (err: any, _: Request, res: Response, next: NextFunction) => {
-  console.log('errorHandler');
-
   const logger = log4js.getLogger();
 
   if (err instanceof ValidationError) {

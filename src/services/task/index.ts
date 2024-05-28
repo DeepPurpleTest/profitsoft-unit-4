@@ -43,6 +43,8 @@ export const listTasksByProjectId = async (
 };
 
 export const counts = async (projectsDto: ProjectsDto): Promise<Record<string, number>> => {
+  await validateFields(projectsDto);
+
   const results = await Task.aggregate([
     { $match: { projectId: { $in: projectsDto.projectsIds } } },
     { $group: { _id: '$projectId', count: { $sum: 1 } } },

@@ -53,8 +53,9 @@ export default async () => {
 
   app.use('/', routers);
 
-  app.use((err: any, req: Request, res: Response, next: NextFunction) =>
-    errorHandler(err, req, res, next));
+  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    errorHandler(err, req, res, next);
+  });
 
   const port = await getConsulValue(`${env}/port`) as number;
   const address = await getConsulValue(`${env}/address`) as string;

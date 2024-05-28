@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser';
-import express from 'express';
+import express, {NextFunction, Request, Response} from 'express';
 import sinon, {SinonStub} from 'sinon';
 import chai from 'chai';
 import chaiHttp from 'chai-http';
@@ -8,6 +8,8 @@ import Task from 'src/model/task';
 import * as taskValidator from 'src/services/task';
 import {ObjectId} from "mongodb";
 import mongoSetup from "../mongoSetup";
+import {errorHandler} from "../../handler/handler";
+import {ValidationError} from "../../handler/errors/validationError";
 
 const { expect } = chai;
 
@@ -18,13 +20,16 @@ const app = express();
 
 app.use(bodyParser.json({ limit: '1mb' }));
 app.use('/', routers);
+app.use(errorHandler);
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  errorHandler(err, req, res, next);
+});
 
 describe('Task controller', () => {
   let validateTaskStub: SinonStub;
 
   before(async () => {
     await mongoSetup;
-    validateTaskStub = sinon.stub(taskValidator, 'validateTask').resolves();
   });
 
   beforeEach(async () => {
@@ -60,9 +65,10 @@ describe('Task controller', () => {
 
   afterEach(async () => {
     await Task.deleteMany({});
+    if (validateTaskStub) validateTaskStub.restore();
   });
 
-  it('should list the tasks', (done) => {
+  it('should list the tasks while projectId is valid', (done) => {
     const project =
       {
         project_id: 1,
@@ -81,7 +87,22 @@ describe('Task controller', () => {
   },
   );
 
-  it('should save the task', (done) => {
+  it('should return validation error while projectId is not exist', (done) => {
+    chai.request(app)
+      .get('')
+      .send({})
+      .end((_, res) => {
+        res.should.have.status(400);
+
+        expect(res.body).to.have.property('message');
+        expect(res.body).to.have.property('errors');
+
+        done();
+      });
+  },
+  );
+
+  it('should save the task while valid body', (done) => {
     const task =
         {
           name: 'Task 1',
@@ -91,6 +112,7 @@ describe('Task controller', () => {
           reporter_id: '1',
         };
 
+    validateTaskStub = sinon.stub(taskValidator, 'validateTask').resolves();
 
     chai.request(app)
       .post('')
@@ -106,9 +128,30 @@ describe('Task controller', () => {
   },
   );
 
-  it('should list of tasks count', (done) => {
+  it('should return validation error while invalid body', (done) => {
+    const error = new ValidationError([{
+      field: 'field',
+      errors: ['error'],
+    }]);
 
+    validateTaskStub = sinon.stub(taskValidator, 'validateTask').rejects(error);
 
+    chai.request(app)
+      .post('')
+      .end((_, res) => {
+        expect(validateTaskStub.calledOnce).to.be.true;
+
+        res.should.have.status(400);
+
+        expect(res.body).to.have.property('message');
+        expect(res.body).to.have.property('errors');
+
+        done();
+      });
+  },
+  );
+
+  it('should list of tasks count while valid body', (done) => {
     const projectsDto =
       {
         projects_ids: [1,2,3],
@@ -124,6 +167,20 @@ describe('Task controller', () => {
           2: 1,
           3: 1,
         });
+
+        done();
+      });
+  },
+  );
+
+  it('should return validation error while body is invalid', (done) => {
+    chai.request(app)
+      .post('/_counts')
+      .end((_, res) => {
+        res.should.have.status(400);
+
+        expect(res.body).to.have.property('message');
+        expect(res.body).to.have.property('errors');
 
         done();
       });
